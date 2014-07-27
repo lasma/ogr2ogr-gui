@@ -21,13 +21,19 @@ private:
     OgrConfig ogrconfig;
     Ui::MainWindow *ui;
 
+    /*!
+     *	\fn void InitSlots( void );
+     *	\brief Inits Slots
+     */
+    void InitSlots( void );
+
 private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
 
 //    void on_source_entered():
+    void evtTxtSourceName();
 
 
-    void on_lineEdit_editingFinished();
 };
 
 #endif // MAINWINDOW_H
