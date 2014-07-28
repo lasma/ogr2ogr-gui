@@ -47,7 +47,8 @@ public:
     void setFormat(QString format_name);
     void setSql(QString format_name);
     void setCoordDims(int nCoordDims);
-    void setUpdate(bool);
+    void setToUpdate(bool);
+    void setToOverwrite(bool);
 
     /**
      * @brief preparePapszArgv
@@ -56,16 +57,22 @@ public:
      */
     char ** preparePapszArgv();
 
+    int getArgumentCount();
+
 private:
     QString src_datasource_name;
     QString dst_datasource_name;
     QString format_name;
     int nCoordDims;
-    bool update;
-    QList< QHash<QString, QString> > arguments;
-    QList< QHash<QString, QString> > getArguments();
+    bool bUpdate;
+    bool bOverwrite;
+
+    QHash<QString, QString> arguments;
+    QHash<QString, QString> getArguments();
 
     void add(QString flag, QString value);
+
+    int argcount;
 
 
 

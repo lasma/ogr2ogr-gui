@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->ogrconfig.setSourceName("/home/inovauk/Downloads/airports/foo.shp");
     this->ogrconfig.setTargetName("/home/inovauk/Downloads/airports/out.shp");
+    this->ogrconfig.setToOverwrite(true);
+    this->ogrconfig.setFormat("ESRI Shapefile");
     this->InitSlots();
 }
 
@@ -66,7 +68,7 @@ Advanced options :
     //papszArgv = CSLAddString( papszArgv,  this->ogrconfig.src_datasource_name.toStdString().c_str() );
 
     //char * papszArgv = NULL;
-    int argcount = 3;
+    int argcount = this->ogrconfig.getArgumentCount();
     char ** papszArgv = this->ogrconfig.preparePapszArgv();
 
     run(argcount, papszArgv);
