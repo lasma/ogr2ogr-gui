@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "src/ogr2ogr.cpp"
 #include "inc/ogrconfig.h"
+#include "QFileDialog"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -9,23 +10,96 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    InitData();
+    InitProjections();
+
+
+
     this->ogrconfig.setSourceName("/home/inovauk/Downloads/airports/foo.shp");
     this->ogrconfig.setTargetName("/home/inovauk/Downloads/airports/out.shp");
     this->ogrconfig.setToOverwrite(true);
-    this->ogrconfig.setFormat("ESRI Shapefile");
-    this->InitSlots();
+    SetFormat("ESRI Shapefile");
+
+    InitSlots();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete [] *formats;
+    delete [] *databases;
+    delete [] *projections;
 }
 
 void MainWindow::InitSlots()
 {
     QObject::connect( ui->txtSourceName, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtSourceName( void ) ) );
-    ui->cmbFormat;
+//    QObject::connect( ui->btnSourceName, SIGNAL( clicked( void ) ), this, SLOT( evtBtnSourceName( void ) ) );
+
+    QObject::connect( ui->cmbSourceFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbSourceFormat( int ) ) );
+    QObject::connect( ui->cmbTargetFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbTargetFormat( void ) ) );
+
+
 }
+
+void MainWindow::InitData( void )
+{
+
+    formats = new QString * [ formatsCount ];
+
+    for( int i = 0; i < formatsCount; i ++ )
+    {
+        formats[ i ] = new QString[ 2 ];
+    }
+
+    databases = new QString * [ databasesCount ];
+
+    for( int i = 0; i < databasesCount; i ++ )
+    {
+        databases[ i ] = new QString[ 2 ];
+    }
+
+    projections = new QString*[ projectionsCount ];
+
+    for( int i = 0; i < projectionsCount; i ++ )
+    {
+        projections[ i ] = new QString[ 2 ];
+    }
+
+    #include "inc/dta.h"
+}
+
+void MainWindow::InitProjections( void )
+{
+    QString prj;
+
+    ui->cmbTargetProj->addItem( tr( "" ) );
+
+    for( int i = 1; i < projectionsCount; i ++ )
+    {
+        prj.clear();
+        prj = projections[ i ][ 0 ];
+        prj.append( tr( " : " ) );
+        prj.append( projections[ i ][ 1 ] );
+
+        ui->cmbTargetProj->addItem( prj );
+    }
+}
+
+void MainWindow::InitFormats( void )
+{
+    for( int i = 0; i < formatsCount; i ++ )
+    {
+        ui->cmbSourceFormat->addItem( formats[ i ][ 0 ] );
+    }
+
+    for( int i = 0; i < formatsCount; i ++ )
+    {
+        ui->cmbTargetFormat->addItem( formats[ i ][ 0 ] );
+    }
+}
+
+
 
 void MainWindow::on_buttonBox_clicked(QAbstractButton *button)
 {
@@ -82,6 +156,108 @@ void MainWindow::evtTxtSourceName()
 //    }
 
     this->ogrconfig.setSourceName(ui->txtSourceName->text());
+}
+
+
+void MainWindow::evtBtnSourceName( void )
+{
+//    int idx = ui->cmbSourceFormat->currentIndex();
+
+//    QString type;
+
+//    if( ui->radSourceFile->isChecked() )
+//    {
+//        type = tr( "\"" ) + formats[ idx ][ 0 ] + tr( "\" | *." ) + formats[ idx ][ 1 ];
+
+//        ui->txtSourceName->setText( QFileDialog::getOpenFileName( this, tr( "Source File" ), tr( "" ), type ) );
+
+//        ogrconfig.src_file_list.clear();
+
+//        ogrconfig.src_file_list.append( ui->txtSourceName->text() );
+//    }
+//    else if( ui->radSourceFolder->isChecked() )
+//    {
+//        QStringList types;
+
+//        type = tr( "*." ) + formats[ ui->cmbSourceFormat->currentIndex() ][ 1 ];
+
+//        ui->txtSourceName->setText( QFileDialog::getExistingDirectory( this, tr( "Source Folder" ), tr( "" ), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks ) );
+
+//        QDir dir( ui->txtSourceName->text() );
+
+//        types.append( type );
+
+//        QStringList list = dir.entryList( types );
+
+//        ogrconfig.src_file_list.clear();
+
+//        for( int i = 0; i < list.size(); i ++ )
+//        {
+//            ogrconfig.src_file_list.append( list.at( i ) );
+//        }
+
+//        if( list.size() > 1 )
+//        {
+//            ui->txtSourceProj->setEnabled( false );
+//            ui->txtSourceQuery->setEnabled( false );
+//        }
+//    }
+//    else if( ui->radSourceDatabase->isChecked() )
+//    {
+////		inf->setConnectionType( databases[ idx ][ 1 ] );
+
+////		inf->setDialogStyle( 1 );
+
+////		if( inf->exec() == QDialog::Accepted )
+////		{
+////			ui->txtSourceName->setText( inf->getConnectionString() );
+////		}
+
+//        ogrconfig.src_file_list.clear();
+
+////		QStringList tables = inf->getSelectedTables();
+
+////		QString connectionString = ui->txtSourceName->text();
+
+////		connectionString.truncate( connectionString.lastIndexOf( tr( "tables=" ) ) );
+
+////		for( int i = 0; i < tables.size(); i ++ )
+////		{
+////			fileList.append( connectionString + tr( "tables=" ) + tables.at( i ) );
+////		}
+
+////		if( fileList.size() > 1 )
+////		{
+////			ui->txtSourceProj->setEnabled( false );
+////			ui->txtSourceQuery->setEnabled( false );
+
+////			ui->radTargetFile->setEnabled( false );
+////			ui->radTargetFolder->setChecked( true );
+////		}
+////		else
+////		{
+////			ui->radTargetFile->setEnabled( true );
+////			ui->radTargetFile->setChecked( true );
+////		}
+//    }
+}
+
+void MainWindow::evtCmbSourceFormat(int i)
+{
+    ui->txtSourceName->clear();
+    ui->txtSourceProj->clear();
+    ui->txtSourceQuery->clear();
+}
+
+void MainWindow::evtCmbTargetFormat( void )
+{
+    ui->txtTargetName->clear();
+}
+
+void MainWindow::SetFormat(QString format)
+{
+    ui->cmbSourceFormat;
+    this->ogrconfig.setFormat(format);
 }
 
 //void MainWindow::on_source_entered()

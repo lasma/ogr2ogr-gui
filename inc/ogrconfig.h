@@ -6,6 +6,7 @@
 #include <QHash>
 #include <QVariant>
 #include <QList>
+#include <QStringList>
 
 /*
 Usage: ogr2ogr [--help-general] [-skipfailures] [-append] [-update]
@@ -42,7 +43,10 @@ public:
     OgrConfig();
     ~OgrConfig();
 
+    QStringList src_file_list;
+
     void setSourceName(QString src_datasource_name);
+    void setSourceFileList(QStringList src_file_list);
     void setTargetName(QString dst_datasource_name);
     void setFormat(QString format_name);
     void setSql(QString format_name);
@@ -61,6 +65,7 @@ public:
 
 private:
     QString src_datasource_name;
+
     QString dst_datasource_name;
     QString format_name;
     int nCoordDims;

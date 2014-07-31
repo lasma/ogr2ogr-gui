@@ -91,6 +91,11 @@ void OgrConfig::setSourceName(QString src_datasource_name)
     this->argcount += 1;
 }
 
+void OgrConfig::setSourceFileList(QStringList src_file_list)
+{
+}
+
+
 void OgrConfig::setTargetName(QString dst_datasource_name)
 {
     this->dst_datasource_name = dst_datasource_name;

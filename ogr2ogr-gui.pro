@@ -17,11 +17,15 @@ SOURCES += src/main.cpp \
         src/mainwindow.cpp \
         src/ogr2ogr.cpp \
         src/commonutils.cpp \
-    src/ogrconfig.cpp
+        src/ogrconfig.cpp \
+        src/databasedialog.cpp
 
 HEADERS  += inc/mainwindow.h \
         inc/ogr2ogr.h \
         inc/commonutils.h \
-    inc/ogrconfig.h
+        inc/ogrconfig.h \
+        inc/dta.h \
+        inc/databasedialog.h
 
-FORMS    += ui/mainwindow.ui
+FORMS    += ui/mainwindow.ui \
+        ui/databasedialog.ui
