@@ -15,6 +15,7 @@ public:
     explicit DatabaseDialog(QWidget *parent = 0);
     ~DatabaseDialog();
     
+
 private:
     Ui::DatabaseDialog *ui;
 };

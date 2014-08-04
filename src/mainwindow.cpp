@@ -11,7 +11,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     InitData();
+    // needs databases from initdata()
+    databaseDialog = new DatabaseDialog(this);
     InitProjections();
+    InitFormats();
 
 
 
@@ -33,8 +36,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::InitSlots()
 {
+    QObject::connect( ui->radSourceFile, SIGNAL( toggled( bool ) ), this, SLOT( evtRadSourceFile( void ) ) );
+    QObject::connect( ui->radSourceFolder, SIGNAL( toggled( bool ) ), this, SLOT( evtRadSourceFolder( void ) ) );
+    QObject::connect( ui->radSourceDatabase, SIGNAL( toggled( bool ) ), this, SLOT( evtRadSourceDatabase( void ) ) );
+
     QObject::connect( ui->txtSourceName, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtSourceName( void ) ) );
-//    QObject::connect( ui->btnSourceName, SIGNAL( clicked( void ) ), this, SLOT( evtBtnSourceName( void ) ) );
+    QObject::connect( ui->btnSourceName, SIGNAL( clicked( void ) ), this, SLOT( evtBtnSourceName( void ) ) );
 
     QObject::connect( ui->cmbSourceFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbSourceFormat( int ) ) );
     QObject::connect( ui->cmbTargetFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbTargetFormat( void ) ) );
@@ -148,7 +155,7 @@ Advanced options :
     run(argcount, papszArgv);
 }
 
-void MainWindow::evtTxtSourceName()
+void MainWindow::evtTxtSourceName( void )
 {
 //    if( ui->txtSourceName->text().startsWith( tr( "file://" ) ) )
 //    {
@@ -161,85 +168,86 @@ void MainWindow::evtTxtSourceName()
 
 void MainWindow::evtBtnSourceName( void )
 {
-//    int idx = ui->cmbSourceFormat->currentIndex();
+    int idx = ui->cmbSourceFormat->currentIndex();
 
-//    QString type;
+    QString type;
 
-//    if( ui->radSourceFile->isChecked() )
-//    {
-//        type = tr( "\"" ) + formats[ idx ][ 0 ] + tr( "\" | *." ) + formats[ idx ][ 1 ];
+    if( ui->radSourceFile->isChecked() )
+    {
+        type = tr( "\"" ) + formats[ idx ][ 0 ] + tr( "\" | *." ) + formats[ idx ][ 1 ];
 
-//        ui->txtSourceName->setText( QFileDialog::getOpenFileName( this, tr( "Source File" ), tr( "" ), type ) );
+        ui->txtSourceName->setText( QFileDialog::getOpenFileName( this, tr( "Source File" ), tr( "" ), type ) );
 
-//        ogrconfig.src_file_list.clear();
+        ogrconfig.src_file_list.clear();
 
-//        ogrconfig.src_file_list.append( ui->txtSourceName->text() );
-//    }
-//    else if( ui->radSourceFolder->isChecked() )
-//    {
-//        QStringList types;
+        ogrconfig.src_file_list.append( ui->txtSourceName->text() );
+    }
+    else if( ui->radSourceFolder->isChecked() )
+    {
+        QStringList types;
 
-//        type = tr( "*." ) + formats[ ui->cmbSourceFormat->currentIndex() ][ 1 ];
+        type = tr( "*." ) + formats[ ui->cmbSourceFormat->currentIndex() ][ 1 ];
 
-//        ui->txtSourceName->setText( QFileDialog::getExistingDirectory( this, tr( "Source Folder" ), tr( "" ), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks ) );
+        ui->txtSourceName->setText( QFileDialog::getExistingDirectory( this, tr( "Source Folder" ), tr( "" ), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks ) );
 
-//        QDir dir( ui->txtSourceName->text() );
+        QDir dir( ui->txtSourceName->text() );
 
-//        types.append( type );
+        types.append( type );
 
-//        QStringList list = dir.entryList( types );
+        QStringList list = dir.entryList( types );
 
-//        ogrconfig.src_file_list.clear();
+        ogrconfig.src_file_list.clear();
 
-//        for( int i = 0; i < list.size(); i ++ )
-//        {
-//            ogrconfig.src_file_list.append( list.at( i ) );
-//        }
+        for( int i = 0; i < list.size(); i ++ )
+        {
+            ogrconfig.src_file_list.append( list.at( i ) );
+        }
 
-//        if( list.size() > 1 )
-//        {
-//            ui->txtSourceProj->setEnabled( false );
-//            ui->txtSourceQuery->setEnabled( false );
-//        }
-//    }
-//    else if( ui->radSourceDatabase->isChecked() )
-//    {
-////		inf->setConnectionType( databases[ idx ][ 1 ] );
+        if( list.size() > 1 )
+        {
+            ui->txtSourceProj->setEnabled( false );
+            ui->txtSourceQuery->setEnabled( false );
+        }
+    }
+    else if( ui->radSourceDatabase->isChecked() )
+    {
+        databaseDialog->show();
+//		inf->setConnectionType( databases[ idx ][ 1 ] );
 
-////		inf->setDialogStyle( 1 );
+//		inf->setDialogStyle( 1 );
 
-////		if( inf->exec() == QDialog::Accepted )
-////		{
-////			ui->txtSourceName->setText( inf->getConnectionString() );
-////		}
+//		if( inf->exec() == QDialog::Accepted )
+//		{
+//			ui->txtSourceName->setText( inf->getConnectionString() );
+//		}
 
-//        ogrconfig.src_file_list.clear();
+        ogrconfig.src_file_list.clear();
 
-////		QStringList tables = inf->getSelectedTables();
+//		QStringList tables = inf->getSelectedTables();
 
-////		QString connectionString = ui->txtSourceName->text();
+//		QString connectionString = ui->txtSourceName->text();
 
-////		connectionString.truncate( connectionString.lastIndexOf( tr( "tables=" ) ) );
+//		connectionString.truncate( connectionString.lastIndexOf( tr( "tables=" ) ) );
 
-////		for( int i = 0; i < tables.size(); i ++ )
-////		{
-////			fileList.append( connectionString + tr( "tables=" ) + tables.at( i ) );
-////		}
+//		for( int i = 0; i < tables.size(); i ++ )
+//		{
+//			fileList.append( connectionString + tr( "tables=" ) + tables.at( i ) );
+//		}
 
-////		if( fileList.size() > 1 )
-////		{
-////			ui->txtSourceProj->setEnabled( false );
-////			ui->txtSourceQuery->setEnabled( false );
+//		if( fileList.size() > 1 )
+//		{
+//			ui->txtSourceProj->setEnabled( false );
+//			ui->txtSourceQuery->setEnabled( false );
 
-////			ui->radTargetFile->setEnabled( false );
-////			ui->radTargetFolder->setChecked( true );
-////		}
-////		else
-////		{
-////			ui->radTargetFile->setEnabled( true );
-////			ui->radTargetFile->setChecked( true );
-////		}
-//    }
+//			ui->radTargetFile->setEnabled( false );
+//			ui->radTargetFolder->setChecked( true );
+//		}
+//		else
+//		{
+//			ui->radTargetFile->setEnabled( true );
+//			ui->radTargetFile->setChecked( true );
+//		}
+    }
 }
 
 void MainWindow::evtCmbSourceFormat(int i)
@@ -258,6 +266,82 @@ void MainWindow::SetFormat(QString format)
 {
     ui->cmbSourceFormat;
     this->ogrconfig.setFormat(format);
+}
+
+void MainWindow::evtRadSourceFile( void )
+{
+    ui->btnSourceName->setText( tr( "&Open" ) );
+
+    ui->cmbSourceFormat->clear();
+
+    for( int i = 0; i < formatsCount; i ++ )
+    {
+        ui->cmbSourceFormat->addItem( formats[ i ][ 0 ] );
+    }
+
+    ui->radTargetFile->setEnabled( true );
+    ui->radTargetFolder->setEnabled( false );
+    ui->radTargetDatabase->setEnabled( true );
+
+    ui->radTargetFile->setChecked( true );
+
+    ui->txtSourceName->clear();
+    ui->txtSourceProj->clear();
+    ui->txtSourceQuery->clear();
+
+    ui->txtSourceProj->setEnabled( true );
+    ui->txtSourceQuery->setEnabled( true );
+}
+
+void MainWindow::evtRadSourceFolder( void )
+{
+    ui->btnSourceName->setText( tr( "&Browse" ) );
+
+    ui->cmbSourceFormat->clear();
+
+    for( int i = 0; i < formatsCount; i ++ )
+    {
+        ui->cmbSourceFormat->addItem( formats[ i ][ 0 ] );
+    }
+
+    ui->radTargetFile->setEnabled( false );
+    ui->radTargetFolder->setEnabled( true );
+    ui->radTargetDatabase->setEnabled( true );
+
+    ui->radTargetFolder->setChecked( true );
+
+    ui->txtSourceName->clear();
+    ui->txtSourceProj->clear();
+    ui->txtSourceQuery->clear();
+
+    ui->txtSourceProj->setEnabled( true );
+    ui->txtSourceQuery->setEnabled( true );
+}
+
+void MainWindow::evtRadSourceDatabase( void )
+{
+
+    ui->btnSourceName->setText( tr( "&Connect" ) );
+
+    ui->cmbSourceFormat->clear();
+
+    for( int i = 0; i < databasesCount; i ++ )
+    {
+        ui->cmbSourceFormat->addItem( databases[ i ][ 0 ] );
+    }
+
+    ui->radTargetFile->setEnabled( true );
+    ui->radTargetFolder->setEnabled( true );
+    ui->radTargetDatabase->setEnabled( true );
+
+    ui->radTargetFile->setChecked( true );
+
+    ui->txtSourceName->clear();
+    ui->txtSourceProj->clear();
+    ui->txtSourceQuery->clear();
+
+    ui->txtSourceProj->setEnabled( true );
+    ui->txtSourceQuery->setEnabled( true );
 }
 
 //void MainWindow::on_source_entered()

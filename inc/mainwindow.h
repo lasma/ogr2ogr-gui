@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QAbstractButton>
 #include "inc/ogrconfig.h"
+#include "inc/databasedialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,6 +22,7 @@ public:
 private:
     OgrConfig ogrconfig;
     Ui::MainWindow *ui;
+    DatabaseDialog *databaseDialog;
 
     // file formats
     const static int formatsCount = 13;
@@ -63,11 +65,15 @@ private:
 private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
 
-//    void on_source_entered():
-    void evtTxtSourceName();
+    void evtRadSourceFile( void );
+    void evtRadSourceFolder( void );
+    void evtRadSourceDatabase( void );
+
+    void evtTxtSourceName( void );
     void evtBtnSourceName( void );
     void evtCmbSourceFormat(int i);
     void evtCmbTargetFormat( void );
+
 
     void SetFormat(QString format = "ESRI Shapefile");
 
