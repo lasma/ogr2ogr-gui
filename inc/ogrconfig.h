@@ -85,6 +85,11 @@ public:
     void setToUpdate(bool);
 
     /**
+     * @brief sets -append
+     */
+    void setToAppend(bool);
+
+    /**
      * @brief sets -overwrite
      */
     void setToOverwrite(bool);
@@ -103,6 +108,8 @@ public:
 
     int getArgumentCount();
 
+public:
+
 private:
     QString src_datasource_name;
 
@@ -114,6 +121,7 @@ private:
     double xmin, ymin, xmax, ymax;
     int nCoordDims;
     bool bUpdate;
+    bool bAppend;
     bool bOverwrite;
     bool bSkipfailures;
 

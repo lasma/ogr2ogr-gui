@@ -22,15 +22,18 @@ void OgrConfig::add(QString flag, QString value)
 
     qDebug() << flag << value;
 
-    this->arguments["-"+flag] = value;
-
-    if (value.isEmpty())
+    if (arguments.contains("-"+flag) == false )
     {
-        this->argcount += 1;
-    } else
-    {
-        this->argcount += 2;
+        if (value.isEmpty())
+        {
+            this->argcount += 1;
+        } else
+        {
+            this->argcount += 2;
+        }
     }
+
+    this->arguments["-"+flag] = value;
 
     qDebug() << this->argcount << ": " << this->arguments;
 }
@@ -180,6 +183,7 @@ void OgrConfig::setToUpdate(bool update)
     {
         this->add("update", "");
         setToOverwrite(false);
+        setToAppend(false);
     }
     else
     {
@@ -195,10 +199,28 @@ void OgrConfig::setToOverwrite(bool overwrite)
     {
         this->add("overwrite", "");
         setToUpdate(false);
+        setToAppend(false);
     }
     else
     {
         this->remove("overwrite");
+    }
+
+}
+
+void OgrConfig::setToAppend(bool append)
+{
+    this->bAppend = append;
+
+    if (append == true)
+    {
+        this->add("append", "");
+        setToUpdate(false);
+        setToOverwrite(false);
+    }
+    else
+    {
+        this->remove("append");
     }
 
 }

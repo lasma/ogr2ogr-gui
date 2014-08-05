@@ -20,7 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->ogrconfig.setSourceName("/home/inovauk/Downloads/airports/foo.shp");
     this->ogrconfig.setTargetName("/home/inovauk/Downloads/airports/out.shp");
-    this->ogrconfig.setToOverwrite(true);
+
+    this->ogrconfig.setToOverwrite( true );
+
     SetTargetFormat("ESRI Shapefile");
 
     InitSlots();
@@ -350,7 +352,7 @@ void MainWindow::evtRadSourceDatabase( void )
 
 void MainWindow::evtRadTargetAppend( void )
 {
-    //ogrconfig.setToOverwrite();
+    ogrconfig.setToAppend( ui->radTargetAppend->isChecked() );
 }
 
 void MainWindow::evtRadTargetOverwrite( void )
