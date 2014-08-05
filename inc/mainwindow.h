@@ -72,10 +72,17 @@ private slots:
     void evtTxtSourceName( void );
     void evtBtnSourceName( void );
     void evtCmbSourceFormat(int i);
-    void evtCmbTargetFormat( void );
 
+    void evtCmbTargetFormat(int i);
 
-    void SetFormat(QString format = "ESRI Shapefile");
+    void evtRadTargetAppend( void );
+    void evtRadTargetOverwrite( void );
+    void evtRadTargetUpdate( void );
+
+    void evtBtnExecute( void );
+    void evtBtnQuit( void );
+
+    void SetTargetFormat(QString format = "ESRI Shapefile");
 
 
 };

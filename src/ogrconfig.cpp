@@ -1,6 +1,7 @@
 #include "inc/ogrconfig.h"
 #include "cpl_string.h"
 #include "iostream"
+#include "QDebug"
 
 
 OgrConfig::OgrConfig()
@@ -18,6 +19,9 @@ OgrConfig::~OgrConfig()
 
 void OgrConfig::add(QString flag, QString value)
 {
+
+    qDebug() << flag << value;
+
     this->arguments["-"+flag] = value;
 
     if (value.isEmpty())
@@ -27,6 +31,32 @@ void OgrConfig::add(QString flag, QString value)
     {
         this->argcount += 2;
     }
+
+    qDebug() << this->argcount << ": " << this->arguments;
+}
+
+void OgrConfig::remove(QString flag)
+{
+
+    qDebug() << "Removing " << flag;
+
+    QHash<QString, QString>::iterator i = this->arguments.find("-"+flag);
+    while ( i != arguments.end() && i.key() == "-"+flag ) {
+        if (i.value().isEmpty()) {
+            this->argcount -= 1;
+        } else {
+            this->argcount -= 2;
+        }
+
+        if (i.value() == 0 ) {
+            i = arguments.erase(i);
+        } else {
+            ++i;
+        }
+    }
+    //this->arguments.remove("-"+flag);
+
+    qDebug() << this->argcount << ": " << this->arguments;
 }
 
 char **OgrConfig::preparePapszArgv()
@@ -102,10 +132,38 @@ void OgrConfig::setTargetName(QString dst_datasource_name)
     this->argcount += 1;
 }
 
-void OgrConfig::setFormat(QString format_name)
+void OgrConfig::setOutputFormat(QString format_name)
 {
-    this->format_name = format_name;
+    this->output_format = format_name;
     this->add("f", format_name);
+}
+
+void OgrConfig::setSqlDialect(QString sql_dialect)
+{
+    this->sql_dialect = sql_dialect;
+    this->add("dialect", sql_dialect);
+}
+
+void OgrConfig::setSqlStatement(QString sql_statement)
+{
+    this->sql_statement = sql_statement;
+    this->add("sql", sql_statement);
+}
+
+void OgrConfig::setSqlWhere(QString sql_where)
+{
+    this->sql_where = sql_where;
+    this->add("where", sql_where);
+}
+
+void OgrConfig::setSpatialExtent(double xmin, double ymin, double xmax, double ymax)
+{
+    this->xmin = xmin;
+    this->ymin = ymin;
+    this->xmax = xmax;
+    this->ymax = ymax;
+    QString sql_extent = QString("%1 %2 %3 %4").arg(xmin).arg(ymin).arg(xmax).arg(ymax);
+    this->add("spat", sql_extent);
 }
 
 void OgrConfig::setCoordDims(int nCoordDims)
@@ -116,20 +174,44 @@ void OgrConfig::setCoordDims(int nCoordDims)
 
 void OgrConfig::setToUpdate(bool update)
 {
+    this->bUpdate = update;
+
     if (update == true)
     {
-        this->bUpdate = update;
         this->add("update", "");
+        setToOverwrite(false);
+    }
+    else
+    {
+        this->remove("update");
     }
 }
 
 void OgrConfig::setToOverwrite(bool overwrite)
 {
+    this->bOverwrite = overwrite;
+
     if (overwrite == true)
     {
-        this->bOverwrite = overwrite;
         this->add("overwrite", "");
+        setToUpdate(false);
+    }
+    else
+    {
+        this->remove("overwrite");
+    }
+
+}
+
+void OgrConfig::setSkipFailures(bool skipfailures)
+{
+    if (skipfailures == true)
+    {
+        this->bSkipfailures = skipfailures;
+        this->add("skipfailures", "");
     }
 }
+
+
 
 

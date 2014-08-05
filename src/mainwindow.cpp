@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ogrconfig.setSourceName("/home/inovauk/Downloads/airports/foo.shp");
     this->ogrconfig.setTargetName("/home/inovauk/Downloads/airports/out.shp");
     this->ogrconfig.setToOverwrite(true);
-    SetFormat("ESRI Shapefile");
+    SetTargetFormat("ESRI Shapefile");
 
     InitSlots();
 }
@@ -44,8 +44,14 @@ void MainWindow::InitSlots()
     QObject::connect( ui->btnSourceName, SIGNAL( clicked( void ) ), this, SLOT( evtBtnSourceName( void ) ) );
 
     QObject::connect( ui->cmbSourceFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbSourceFormat( int ) ) );
-    QObject::connect( ui->cmbTargetFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbTargetFormat( void ) ) );
+    QObject::connect( ui->cmbTargetFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbTargetFormat( int ) ) );
 
+    QObject::connect( ui->radTargetOverwrite, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetOverwrite( void ) ) );
+    QObject::connect( ui->radTargetAppend, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetAppend( void ) ) );
+    QObject::connect( ui->radTargetUpdate, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetUpdate( void ) ) );
+
+    QObject::connect( ui->btnExecute, SIGNAL( clicked( void ) ), this, SLOT( evtBtnExecute( void ) ) );
+    QObject::connect( ui->btnQuit, SIGNAL( clicked( void ) ), this, SLOT( evtBtnQuit( void ) ) );
 
 }
 
@@ -106,7 +112,10 @@ void MainWindow::InitFormats( void )
     }
 }
 
-
+void MainWindow::SetTargetFormat(QString format)
+{
+    this->ogrconfig.setOutputFormat(format);
+}
 
 void MainWindow::on_buttonBox_clicked(QAbstractButton *button)
 {
@@ -257,15 +266,10 @@ void MainWindow::evtCmbSourceFormat(int i)
     ui->txtSourceQuery->clear();
 }
 
-void MainWindow::evtCmbTargetFormat( void )
+void MainWindow::evtCmbTargetFormat( int i )
 {
     ui->txtTargetName->clear();
-}
-
-void MainWindow::SetFormat(QString format)
-{
-    ui->cmbSourceFormat;
-    this->ogrconfig.setFormat(format);
+    ogrconfig.setOutputFormat(ui->cmbTargetFormat->currentText());
 }
 
 void MainWindow::evtRadSourceFile( void )
@@ -342,6 +346,34 @@ void MainWindow::evtRadSourceDatabase( void )
 
     ui->txtSourceProj->setEnabled( true );
     ui->txtSourceQuery->setEnabled( true );
+}
+
+void MainWindow::evtRadTargetAppend( void )
+{
+    //ogrconfig.setToOverwrite();
+}
+
+void MainWindow::evtRadTargetOverwrite( void )
+{
+    ogrconfig.setToOverwrite( ui->radTargetOverwrite->isChecked() );
+}
+
+void MainWindow::evtRadTargetUpdate( void )
+{
+    ogrconfig.setToUpdate( ui->radTargetUpdate->isChecked() );
+}
+
+void MainWindow::evtBtnExecute( void )
+{
+    int argcount = this->ogrconfig.getArgumentCount();
+    char ** papszArgv = this->ogrconfig.preparePapszArgv();
+
+    run(argcount, papszArgv);
+}
+
+void MainWindow::evtBtnQuit( void )
+{
+    this->close();
 }
 
 //void MainWindow::on_source_entered()

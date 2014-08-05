@@ -48,11 +48,51 @@ public:
     void setSourceName(QString src_datasource_name);
     void setSourceFileList(QStringList src_file_list);
     void setTargetName(QString dst_datasource_name);
-    void setFormat(QString format_name);
-    void setSql(QString format_name);
+
+    /**
+     * @brief sets -f format_name
+     */
+    void setOutputFormat(QString format_name);
+
+    /**
+     * @brief sets -dialect sql_dialect
+     */
+    void setSqlDialect(QString sql_dialect);
+
+    /**
+     * @brief sets -sql sql_statement
+     */
+    void setSqlStatement(QString sql_statement);
+
+    /**
+     * @brief sets -where sql_where
+     */
+    void setSqlWhere(QString sql_where);
+
+    /**
+     * @brief sets -spat xmin, ymin, xmax, ymax
+     */
+    void setSpatialExtent(double xmin, double ymin, double xmax, double ymax);
+
+    /**
+     * @brief sets -dim
+     */
     void setCoordDims(int nCoordDims);
+
+    /**
+     * @brief sets -update
+     */
     void setToUpdate(bool);
+
+    /**
+     * @brief sets -overwrite
+     */
     void setToOverwrite(bool);
+
+    /**
+     * @brief sets -skipfailures
+     */
+    void setSkipFailures(bool);
 
     /**
      * @brief preparePapszArgv
@@ -67,15 +107,21 @@ private:
     QString src_datasource_name;
 
     QString dst_datasource_name;
-    QString format_name;
+    QString output_format;
+    QString sql_dialect;
+    QString sql_statement;
+    QString sql_where;
+    double xmin, ymin, xmax, ymax;
     int nCoordDims;
     bool bUpdate;
     bool bOverwrite;
+    bool bSkipfailures;
 
     QHash<QString, QString> arguments;
     QHash<QString, QString> getArguments();
 
     void add(QString flag, QString value);
+    void remove(QString flag);
 
     int argcount;
 
