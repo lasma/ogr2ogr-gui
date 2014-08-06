@@ -64,7 +64,7 @@ void OgrConfig::remove(QString flag)
 
 char **OgrConfig::preparePapszArgv()
 {
-    // Create argi=ument list for the run program
+    // Create argument list for the run program
     char ** papszArgv = NULL;
 //    papszOpti/*o*/ns = CSLSetNameValue( papszOptions, "DIM", "2" );
     // this first argument replaces ogr2ogr self
@@ -95,15 +95,13 @@ char **OgrConfig::preparePapszArgv()
 
     //dst_datasource_name
     papszArgv = CSLAddString( papszArgv, this->dst_datasource_name.toStdString().c_str() );
+
     //src_datasource_name
     papszArgv = CSLAddString( papszArgv,  this->src_datasource_name.toStdString().c_str() );
 
 
-
     return papszArgv;
 
-
-    //run(3, papszArgv);
 }
 
 int OgrConfig::getArgumentCount()
@@ -120,8 +118,13 @@ QHash<QString, QString> OgrConfig::getArguments()
 
 void OgrConfig::setSourceName(QString src_datasource_name)
 {
+    if (this->src_datasource_name.isEmpty()) {
+        this->argcount += 1;
+    }
+
     this->src_datasource_name = src_datasource_name;
-    this->argcount += 1;
+
+    qDebug() << argcount << ": " << src_datasource_name;
 }
 
 void OgrConfig::setSourceFileList(QStringList src_file_list)
@@ -131,8 +134,13 @@ void OgrConfig::setSourceFileList(QStringList src_file_list)
 
 void OgrConfig::setTargetName(QString dst_datasource_name)
 {
+    if (this->dst_datasource_name.isEmpty()) {
+        this->argcount += 1;
+    }
+
     this->dst_datasource_name = dst_datasource_name;
-    this->argcount += 1;
+
+    qDebug() << argcount << ": " << dst_datasource_name;
 }
 
 void OgrConfig::setOutputFormat(QString format_name)

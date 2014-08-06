@@ -62,8 +62,14 @@ private:
 
     void InitFormats( void );
 
+    /*!
+     *	\fn void UpdateParameters( void );
+     *	\brief Updates parameters
+     */
+    void UpdateParameters( void );
+
 private slots:
-    void on_buttonBox_clicked(QAbstractButton *button);
+    //void on_buttonBox_clicked(QAbstractButton *button);
 
     void evtRadSourceFile( void );
     void evtRadSourceFolder( void );
@@ -73,7 +79,14 @@ private slots:
     void evtBtnSourceName( void );
     void evtCmbSourceFormat(int i);
 
+    void evtRadTargetFile( void );
+    void evtRadTargetFolder( void );
+    void evtRadTargetDatabase( void );
+
     void evtCmbTargetFormat(int i);
+
+    void evtTxtTargetName( void );
+    void evtBtnTargetName( void );
 
     void evtRadTargetAppend( void );
     void evtRadTargetOverwrite( void );

@@ -3,29 +3,31 @@
 #include "src/ogr2ogr.cpp"
 #include "inc/ogrconfig.h"
 #include "QFileDialog"
-
+#include "QPlainTextEdit"
+#include "QDebug"
+#include "QProcess"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    InitData();
-    // needs databases from initdata()
     databaseDialog = new DatabaseDialog(this);
+
+    InitData();
     InitProjections();
     InitFormats();
+    InitSlots();
 
+    ui->txtSourceName->setText( "/home/inovauk/Downloads/airports/foo.shp" );
+    ui->txtTargetName->setText( "/home/inovauk/Downloads/airports/out.shp" );
 
-
-    this->ogrconfig.setSourceName("/home/inovauk/Downloads/airports/foo.shp");
-    this->ogrconfig.setTargetName("/home/inovauk/Downloads/airports/out.shp");
-
-    this->ogrconfig.setToOverwrite( true );
+    ui->radTargetOverwrite->setChecked( true );
+    ogrconfig.setToOverwrite( true );
 
     SetTargetFormat("ESRI Shapefile");
 
-    InitSlots();
+
 }
 
 MainWindow::~MainWindow()
@@ -44,9 +46,18 @@ void MainWindow::InitSlots()
 
     QObject::connect( ui->txtSourceName, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtSourceName( void ) ) );
     QObject::connect( ui->btnSourceName, SIGNAL( clicked( void ) ), this, SLOT( evtBtnSourceName( void ) ) );
-
     QObject::connect( ui->cmbSourceFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbSourceFormat( int ) ) );
+
+
+    QObject::connect( ui->radTargetFile, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetFile( void ) ) );
+    QObject::connect( ui->radTargetFolder, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetFolder( void ) ) );
+    QObject::connect( ui->radTargetDatabase, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetDatabase( void ) ) );
+
     QObject::connect( ui->cmbTargetFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbTargetFormat( int ) ) );
+    QObject::connect( ui->cmbTargetFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbTargetFormat( void ) ) );
+
+    QObject::connect( ui->txtTargetName, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtTargetName( void ) ) );
+    QObject::connect( ui->btnTargetName, SIGNAL( clicked() ), this, SLOT( evtBtnTargetName( void ) ) );
 
     QObject::connect( ui->radTargetOverwrite, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetOverwrite( void ) ) );
     QObject::connect( ui->radTargetAppend, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetAppend( void ) ) );
@@ -114,13 +125,33 @@ void MainWindow::InitFormats( void )
     }
 }
 
+void MainWindow::UpdateParameters( void )
+{
+    int argcount = this->ogrconfig.getArgumentCount();
+    char ** papszArgv = this->ogrconfig.preparePapszArgv();
+    QString args;
+    for (int i=0; i<argcount; i++)
+    {
+        if (i == 0)
+        {
+            args.append("ogr2ogr");
+        }
+        else
+        {
+            args.append(QString::fromLatin1(papszArgv[i]));
+            args.append(" ");
+        }
+    }
+    ui->txtParameters->setPlainText(args);
+}
+
 void MainWindow::SetTargetFormat(QString format)
 {
     this->ogrconfig.setOutputFormat(format);
 }
 
-void MainWindow::on_buttonBox_clicked(QAbstractButton *button)
-{
+//void MainWindow::on_buttonBox_clicked(QAbstractButton *button)
+//{
 /*
 Usage: ogr2ogr [--help-general] [-skipfailures] [-append] [-update]
                [-select field_list] [-where restricted_where]
@@ -160,11 +191,11 @@ Advanced options :
     //papszArgv = CSLAddString( papszArgv,  this->ogrconfig.src_datasource_name.toStdString().c_str() );
 
     //char * papszArgv = NULL;
-    int argcount = this->ogrconfig.getArgumentCount();
-    char ** papszArgv = this->ogrconfig.preparePapszArgv();
+//    int argcount = this->ogrconfig.getArgumentCount();
+//    char ** papszArgv = this->ogrconfig.preparePapszArgv();
 
-    run(argcount, papszArgv);
-}
+//    run(argcount, papszArgv);
+//}
 
 void MainWindow::evtTxtSourceName( void )
 {
@@ -173,7 +204,9 @@ void MainWindow::evtTxtSourceName( void )
 //        ui->txtSourceName->setText( QUrl( ui->txtSourceName->text() ).authority().trimmed() );
 //    }
 
-    this->ogrconfig.setSourceName(ui->txtSourceName->text());
+    this->ogrconfig.setSourceName( ui->txtSourceName->text() );
+
+    UpdateParameters();
 }
 
 
@@ -259,6 +292,8 @@ void MainWindow::evtBtnSourceName( void )
 //			ui->radTargetFile->setChecked( true );
 //		}
     }
+
+    UpdateParameters();
 }
 
 void MainWindow::evtCmbSourceFormat(int i)
@@ -266,12 +301,16 @@ void MainWindow::evtCmbSourceFormat(int i)
     ui->txtSourceName->clear();
     ui->txtSourceProj->clear();
     ui->txtSourceQuery->clear();
+
+    UpdateParameters();
 }
 
 void MainWindow::evtCmbTargetFormat( int i )
 {
     ui->txtTargetName->clear();
     ogrconfig.setOutputFormat(ui->cmbTargetFormat->currentText());
+
+    UpdateParameters();
 }
 
 void MainWindow::evtRadSourceFile( void )
@@ -297,6 +336,8 @@ void MainWindow::evtRadSourceFile( void )
 
     ui->txtSourceProj->setEnabled( true );
     ui->txtSourceQuery->setEnabled( true );
+
+    UpdateParameters();
 }
 
 void MainWindow::evtRadSourceFolder( void )
@@ -322,7 +363,11 @@ void MainWindow::evtRadSourceFolder( void )
 
     ui->txtSourceProj->setEnabled( true );
     ui->txtSourceQuery->setEnabled( true );
+
+    UpdateParameters();
 }
+
+
 
 void MainWindow::evtRadSourceDatabase( void )
 {
@@ -348,21 +393,129 @@ void MainWindow::evtRadSourceDatabase( void )
 
     ui->txtSourceProj->setEnabled( true );
     ui->txtSourceQuery->setEnabled( true );
+
+    UpdateParameters();
+}
+
+
+void MainWindow::evtRadTargetFile( void )
+{
+    ui->btnTargetName->setText( tr( "&Save" ) );
+
+    ui->cmbTargetFormat->clear();
+
+    for( int i = 0; i < formatsOutput; i ++ )
+    {
+        ui->cmbTargetFormat->addItem( formats[ i ][ 0 ] );
+    }
+
+    ui->txtTargetName->clear();
+    ui->txtTargetProj->clear();
+
+    ui->cmbTargetProj->setCurrentIndex( 0 );
+
+    UpdateParameters();
+}
+
+void MainWindow::evtRadTargetFolder( void )
+{
+    ui->btnTargetName->setText( tr( "&Browse" ) );
+
+    ui->cmbTargetFormat->clear();
+
+    for( int i = 0; i < formatsOutput; i ++ )
+    {
+        ui->cmbTargetFormat->addItem( formats[ i ][ 0 ] );
+    }
+
+    UpdateParameters();
+}
+
+void MainWindow::evtRadTargetDatabase( void )
+{
+    ui->btnTargetName->setText( tr( "&Connect" ) );
+
+    ui->cmbTargetFormat->clear();
+
+    for( int i = 0; i < databasesOutput; i ++ )
+    {
+        ui->cmbTargetFormat->addItem( databases[ i ][ 0 ] );
+    }
+
+    UpdateParameters();
+}
+
+void MainWindow::evtTxtTargetName( void )
+{
+    ui->btnExecute->setEnabled( true );
+    ogrconfig.setTargetName( ui->txtTargetName->text());
+
+    UpdateParameters();
+}
+
+
+void MainWindow::evtBtnTargetName( void )
+{
+    QString type;
+
+    int idx = ui->cmbTargetFormat->currentIndex();
+
+    if( ui->radTargetDatabase->isChecked() )
+    {
+        databaseDialog->show();
+        //inf->setDialogStyle( 0 );
+
+        //inf->setConnectionType( databases[ cmbTargetFormat->currentIndex() ][ 1 ] );
+
+        //if( inf->exec() == QDialog::Accepted )
+        //{
+        //	ui->txtTargetName->setText( inf->getConnectionString() );
+        //}
+    }
+    else if( ui->radTargetFolder->isChecked() )
+    {
+        if( ui->radSourceFile->isChecked() )
+        {
+            type = tr( "\"" ) + formats[ idx ][ 0 ] + tr( " (*." ) + formats[ idx ][ 1 ] + tr( ") | *." ) + formats[ idx ][ 1 ];
+
+            ui->txtTargetName->setText( QFileDialog::getSaveFileName( this, tr( "Save File" ), tr( "" ), type ) );
+        }
+        else if( ui->radTargetFolder->isChecked() )
+        {
+            ui->txtTargetName->setText( QFileDialog::getExistingDirectory( this, tr( "Target Folder" ), tr( "" ), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks ) );
+        }
+    }
+    else
+    {
+        type = tr( "\"" ) + formats[ idx ][ 0 ] + tr( "\" | *." ) + formats[ idx ][ 1 ];
+
+        ui->txtTargetName->setText( QFileDialog::getSaveFileName( this, tr( "Target File" ), tr( "" ), type ) );
+    }
+
+    ui->btnExecute->setEnabled( true );
+
+    UpdateParameters();
 }
 
 void MainWindow::evtRadTargetAppend( void )
 {
     ogrconfig.setToAppend( ui->radTargetAppend->isChecked() );
+
+    UpdateParameters();
 }
 
 void MainWindow::evtRadTargetOverwrite( void )
 {
     ogrconfig.setToOverwrite( ui->radTargetOverwrite->isChecked() );
+
+    UpdateParameters();
 }
 
 void MainWindow::evtRadTargetUpdate( void )
 {
     ogrconfig.setToUpdate( ui->radTargetUpdate->isChecked() );
+
+    UpdateParameters();
 }
 
 void MainWindow::evtBtnExecute( void )
@@ -370,7 +523,29 @@ void MainWindow::evtBtnExecute( void )
     int argcount = this->ogrconfig.getArgumentCount();
     char ** papszArgv = this->ogrconfig.preparePapszArgv();
 
-    run(argcount, papszArgv);
+    QStringList args;
+    for (int i=0; i<argcount; i++)
+    {
+        if ( i > 0 ) {
+            args << QString::fromLatin1(papszArgv[i]);
+        }
+    }
+    qDebug() << args;
+    //ui->txtParameters->setPlainText(args);
+
+    QProcess process;
+    process.start("ogr2ogr", args);
+    bool ok = process.waitForFinished(-1);
+    QString out = QString::fromUtf8(process.readAllStandardOutput().data());
+    QString err = QString::fromUtf8(process.readAllStandardError().data());
+    ui->txtParameters->appendPlainText(out);
+    ui->txtParameters->appendPlainText(err);
+
+//    try {
+//        run(argcount, papszArgv);
+//    } catch (const std::exception &ex) {
+//        //qDebug() << ex;
+//    }
 }
 
 void MainWindow::evtBtnQuit( void )
