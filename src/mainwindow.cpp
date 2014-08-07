@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->txtSourceName->setText( "/home/inovauk/Downloads/airports/foo.shp" );
     ui->txtTargetName->setText( "/home/inovauk/Downloads/airports/out.shp" );
 
-    ui->radTargetOverwrite->setChecked( true );
+    //ui->radTargetOverwrite->setChecked( true );
     ogrconfig.setToOverwrite( true );
 
     SetTargetFormat("ESRI Shapefile");
@@ -47,7 +47,7 @@ void MainWindow::InitSlots()
     QObject::connect( ui->txtSourceName, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtSourceName( void ) ) );
     QObject::connect( ui->btnSourceName, SIGNAL( clicked( void ) ), this, SLOT( evtBtnSourceName( void ) ) );
     QObject::connect( ui->cmbSourceFormat, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbSourceFormat( int ) ) );
-
+    QObject::connect( ui->txtSourceQuery, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtSourceQuery( void ) ) );
 
     QObject::connect( ui->radTargetFile, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetFile( void ) ) );
     QObject::connect( ui->radTargetFolder, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetFolder( void ) ) );
@@ -58,10 +58,17 @@ void MainWindow::InitSlots()
 
     QObject::connect( ui->txtTargetName, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtTargetName( void ) ) );
     QObject::connect( ui->btnTargetName, SIGNAL( clicked() ), this, SLOT( evtBtnTargetName( void ) ) );
+    QObject::connect( ui->txtTargetProj, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtTargetProj( void ) ) );
+    QObject::connect( ui->cmbTargetProj, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbTargetProj( void ) ) );
 
     QObject::connect( ui->radTargetOverwrite, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetOverwrite( void ) ) );
     QObject::connect( ui->radTargetAppend, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetAppend( void ) ) );
     QObject::connect( ui->radTargetUpdate, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetUpdate( void ) ) );
+
+    QObject::connect( ui->ckbTargetSkipFailures, SIGNAL( toggled( bool ) ), this, SLOT( evtTargetSkipFailures( void ) ) );
+
+
+
 
     QObject::connect( ui->btnExecute, SIGNAL( clicked( void ) ), this, SLOT( evtBtnExecute( void ) ) );
     QObject::connect( ui->btnQuit, SIGNAL( clicked( void ) ), this, SLOT( evtBtnQuit( void ) ) );
@@ -132,15 +139,8 @@ void MainWindow::UpdateParameters( void )
     QString args;
     for (int i=0; i<argcount; i++)
     {
-        if (i == 0)
-        {
-            args.append("ogr2ogr");
-        }
-        else
-        {
-            args.append(QString::fromLatin1(papszArgv[i]));
-            args.append(" ");
-        }
+        args.append(QString::fromLatin1(papszArgv[i]));
+        args.append(" ");
     }
     ui->txtParameters->setPlainText(args);
 }
@@ -302,6 +302,12 @@ void MainWindow::evtCmbSourceFormat(int i)
     ui->txtSourceProj->clear();
     ui->txtSourceQuery->clear();
 
+    UpdateParameters();
+}
+
+void MainWindow::evtTxtSourceQuery( void )
+{
+    ogrconfig.setSqlStatement(ui->txtSourceQuery->text());
     UpdateParameters();
 }
 
@@ -497,6 +503,35 @@ void MainWindow::evtBtnTargetName( void )
     UpdateParameters();
 }
 
+void MainWindow::evtTxtTargetProj( void )
+{
+    QString projection = ui->txtTargetProj->text();
+
+    for( int i = 0; i < projectionsCount; i ++ )
+    {
+        if( ( projections[ i ][ 0 ] ).startsWith( projection ) )
+        {
+            ui->cmbTargetProj->setCurrentIndex( i );
+
+            break;
+        }
+    }
+
+    UpdateParameters();
+}
+
+void MainWindow::evtCmbTargetProj( void )
+{
+    if( ! ui->cmbTargetProj->currentText().isEmpty() )
+    {
+        QString target_proj = projections[ ui->cmbTargetProj->currentIndex() ][ 0 ];
+        ui->txtTargetProj->setText(target_proj);
+        ogrconfig.setTargetProjection(target_proj);
+    }
+
+    UpdateParameters();
+}
+
 void MainWindow::evtRadTargetAppend( void )
 {
     ogrconfig.setToAppend( ui->radTargetAppend->isChecked() );
@@ -514,6 +549,13 @@ void MainWindow::evtRadTargetOverwrite( void )
 void MainWindow::evtRadTargetUpdate( void )
 {
     ogrconfig.setToUpdate( ui->radTargetUpdate->isChecked() );
+
+    UpdateParameters();
+}
+
+void MainWindow::evtTargetSkipFailures( void )
+{
+    ogrconfig.setSkipFailures( ui->ckbTargetSkipFailures->isChecked() );
 
     UpdateParameters();
 }

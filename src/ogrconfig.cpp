@@ -68,7 +68,7 @@ char **OgrConfig::preparePapszArgv()
     char ** papszArgv = NULL;
 //    papszOpti/*o*/ns = CSLSetNameValue( papszOptions, "DIM", "2" );
     // this first argument replaces ogr2ogr self
-    papszArgv = CSLAddString( papszArgv, "gdal" );
+    papszArgv = CSLAddString( papszArgv, "ogr2ogr" );
     //papszArgv = CSLAddString( papszArgv, arguments.at(i).toStdString().c_str() );
     QHashIterator<QString, QString> i(arguments);
     while (i.hasNext()) {
@@ -141,6 +141,20 @@ void OgrConfig::setTargetName(QString dst_datasource_name)
     this->dst_datasource_name = dst_datasource_name;
 
     qDebug() << argcount << ": " << dst_datasource_name;
+}
+
+void OgrConfig::setTargetProjection(QString epsg_number)
+{
+    if ( !epsg_number.isNull() && !epsg_number.isEmpty() )
+    {
+        target_proj = "EPSG:" + epsg_number;
+        this->add("t_srs", target_proj);
+    }
+    else
+    {
+        target_proj = QString();
+        this->remove("t_srs");
+    }
 }
 
 void OgrConfig::setOutputFormat(QString format_name)
@@ -218,7 +232,7 @@ void OgrConfig::setToOverwrite(bool overwrite)
 
 void OgrConfig::setToAppend(bool append)
 {
-    this->bAppend = append;
+    bAppend = append;
 
     if (append == true)
     {
@@ -235,10 +249,15 @@ void OgrConfig::setToAppend(bool append)
 
 void OgrConfig::setSkipFailures(bool skipfailures)
 {
+    bSkipfailures = skipfailures;
+
     if (skipfailures == true)
     {
-        this->bSkipfailures = skipfailures;
         this->add("skipfailures", "");
+    }
+    else
+    {
+        this->remove("skipfailures");
     }
 }
 

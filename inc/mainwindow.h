@@ -78,6 +78,7 @@ private slots:
     void evtTxtSourceName( void );
     void evtBtnSourceName( void );
     void evtCmbSourceFormat(int i);
+    void evtTxtSourceQuery( void );
 
     void evtRadTargetFile( void );
     void evtRadTargetFolder( void );
@@ -87,10 +88,14 @@ private slots:
 
     void evtTxtTargetName( void );
     void evtBtnTargetName( void );
+    void evtTxtTargetProj( void );
+    void evtCmbTargetProj( void );
 
     void evtRadTargetAppend( void );
     void evtRadTargetOverwrite( void );
     void evtRadTargetUpdate( void );
+
+    void evtTargetSkipFailures( void );
 
     void evtBtnExecute( void );
     void evtBtnQuit( void );

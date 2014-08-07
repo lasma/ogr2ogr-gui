@@ -50,6 +50,11 @@ public:
     void setTargetName(QString dst_datasource_name);
 
     /**
+     * @brief sets -t_srs reproject /transform to this SRS on output
+     */
+    void setTargetProjection(QString epsg_number);
+
+    /**
      * @brief sets -f format_name
      */
     void setOutputFormat(QString format_name);
@@ -118,6 +123,7 @@ private:
     QString sql_dialect;
     QString sql_statement;
     QString sql_where;
+    QString target_proj;
     double xmin, ymin, xmax, ymax;
     int nCoordDims;
     bool bUpdate;
