@@ -58,14 +58,19 @@ void MainWindow::InitSlots()
 
     QObject::connect( ui->txtTargetName, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtTargetName( void ) ) );
     QObject::connect( ui->btnTargetName, SIGNAL( clicked() ), this, SLOT( evtBtnTargetName( void ) ) );
-    QObject::connect( ui->txtTargetProj, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtTargetProj( void ) ) );
-    QObject::connect( ui->cmbTargetProj, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbTargetProj( void ) ) );
 
     QObject::connect( ui->radTargetOverwrite, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetOverwrite( void ) ) );
     QObject::connect( ui->radTargetAppend, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetAppend( void ) ) );
     QObject::connect( ui->radTargetUpdate, SIGNAL( toggled( bool ) ), this, SLOT( evtRadTargetUpdate( void ) ) );
 
+    QObject::connect( ui->txtTargetProj, SIGNAL( textChanged( QString ) ), this, SLOT( evtTxtTargetProj( void ) ) );
+    QObject::connect( ui->cmbTargetProj, SIGNAL( currentIndexChanged( int ) ), this, SLOT( evtCmbTargetProj( void ) ) );
+    QObject::connect( ui->radTargetProjReproject, SIGNAL( toggled( bool ) ), this, SLOT( evtCmbTargetProj( void ) ) );
+    QObject::connect( ui->radTargetProjOverride, SIGNAL( toggled( bool ) ), this, SLOT( evtCmbTargetProj( void ) ) );
+    QObject::connect( ui->radTargetProjAssign, SIGNAL( toggled( bool ) ), this, SLOT( evtCmbTargetProj( void ) ) );
+
     QObject::connect( ui->ckbTargetSkipFailures, SIGNAL( toggled( bool ) ), this, SLOT( evtTargetSkipFailures( void ) ) );
+    QObject::connect( ui->ckbShowProgress, SIGNAL( toggled( bool ) ), this, SLOT( evtShowProgress( void ) ) );
 
 
 
@@ -526,11 +531,24 @@ void MainWindow::evtCmbTargetProj( void )
     {
         QString target_proj = projections[ ui->cmbTargetProj->currentIndex() ][ 0 ];
         ui->txtTargetProj->setText(target_proj);
-        ogrconfig.setTargetProjection(target_proj);
+
+        TransformationOption option;
+        if (ui->radTargetProjReproject->isChecked() == true) {
+            option = proj_reproject;
+        }
+        else if (ui->radTargetProjOverride->isChecked() == true) {
+            option = proj_override;
+        }
+        else if (ui->radTargetProjAssign->isChecked() == true) {
+            option = proj_assign;
+        }
+
+        ogrconfig.setTargetProjection(target_proj, option);
     }
 
     UpdateParameters();
 }
+
 
 void MainWindow::evtRadTargetAppend( void )
 {
@@ -556,6 +574,13 @@ void MainWindow::evtRadTargetUpdate( void )
 void MainWindow::evtTargetSkipFailures( void )
 {
     ogrconfig.setSkipFailures( ui->ckbTargetSkipFailures->isChecked() );
+
+    UpdateParameters();
+}
+
+void MainWindow::evtShowProgress( void )
+{
+    ogrconfig.setShowProgress( ui->ckbShowProgress->isChecked() );
 
     UpdateParameters();
 }

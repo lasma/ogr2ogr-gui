@@ -143,17 +143,35 @@ void OgrConfig::setTargetName(QString dst_datasource_name)
     qDebug() << argcount << ": " << dst_datasource_name;
 }
 
-void OgrConfig::setTargetProjection(QString epsg_number)
+void OgrConfig::setTargetProjection(QString epsg_number, TransformationOption option)
 {
+    switch (option)
+    {
+        case proj_reproject:
+            target_proj_flag = "t_srs";
+            break;
+        case proj_assign:
+            target_proj_flag = "a_srs";
+            break;
+        case proj_override:
+            target_proj_flag = "s_srs";
+            break;
+        default:
+            target_proj_flag = "t_srs";
+    }
+
     if ( !epsg_number.isNull() && !epsg_number.isEmpty() )
     {
+        this->remove("t_srs");
+        this->remove("a_srs");
+        this->remove("s_srs");
         target_proj = "EPSG:" + epsg_number;
-        this->add("t_srs", target_proj);
+        this->add(target_proj_flag, target_proj);
     }
     else
     {
         target_proj = QString();
-        this->remove("t_srs");
+        this->remove(target_proj_flag);
     }
 }
 
@@ -261,6 +279,19 @@ void OgrConfig::setSkipFailures(bool skipfailures)
     }
 }
 
+void OgrConfig::setShowProgress(bool progress)
+{
+    bShowProgress = progress;
+
+    if (progress == true)
+    {
+        this->add("progress", "");
+    }
+    else
+    {
+        this->remove("progress");
+    }
+}
 
 
 

@@ -96,6 +96,7 @@ private slots:
     void evtRadTargetUpdate( void );
 
     void evtTargetSkipFailures( void );
+    void evtShowProgress( void );
 
     void evtBtnExecute( void );
     void evtBtnQuit( void );

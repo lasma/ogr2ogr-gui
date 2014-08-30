@@ -37,6 +37,13 @@ Advanced options :
 
 */
 
+enum TransformationOption
+{
+    proj_reproject,
+    proj_override,
+    proj_assign
+};
+
 struct OgrConfig
 {
 public:
@@ -50,9 +57,9 @@ public:
     void setTargetName(QString dst_datasource_name);
 
     /**
-     * @brief sets -t_srs reproject /transform to this SRS on output
+     * @brief sets EPSG number and transformation option: -t_srs, -s_srs, -a_srs
      */
-    void setTargetProjection(QString epsg_number);
+    void setTargetProjection(QString epsg_number, TransformationOption option = proj_reproject);
 
     /**
      * @brief sets -f format_name
@@ -105,6 +112,11 @@ public:
     void setSkipFailures(bool);
 
     /**
+     * @brief sets -progress
+     */
+    void setShowProgress(bool);
+
+    /**
      * @brief preparePapszArgv
      * @param papszArgv arguments for ogr2ogr run()
      * @return argument count
@@ -124,12 +136,14 @@ private:
     QString sql_statement;
     QString sql_where;
     QString target_proj;
+    QString target_proj_flag;
     double xmin, ymin, xmax, ymax;
     int nCoordDims;
     bool bUpdate;
     bool bAppend;
     bool bOverwrite;
     bool bSkipfailures;
+    bool bShowProgress;
 
     QHash<QString, QString> arguments;
     QHash<QString, QString> getArguments();

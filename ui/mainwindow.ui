@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>528</width>
-    <height>548</height>
+    <width>593</width>
+    <height>734</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -101,7 +101,11 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="txtSourceProj"/>
+        <widget class="QLineEdit" name="txtSourceProj">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_7">
@@ -246,7 +250,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
          <item>
           <widget class="QLineEdit" name="txtTargetProj">
            <property name="minimumSize">
@@ -266,6 +270,31 @@
          <item>
           <widget class="QComboBox" name="cmbTargetProj"/>
          </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QRadioButton" name="radTargetProjReproject">
+             <property name="text">
+              <string>reproject</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radTargetProjOverride">
+             <property name="text">
+              <string>override</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radTargetProjAssign">
+             <property name="text">
+              <string>assign</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </item>
        <item row="5" column="1">
@@ -275,11 +304,34 @@
          </property>
         </widget>
        </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Clip</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QCheckBox" name="ckbShowProgress">
+         <property name="text">
+          <string>Show Progress</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
     <item>
      <widget class="QPlainTextEdit" name="txtParameters">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="autoFillBackground">
        <bool>false</bool>
       </property>
